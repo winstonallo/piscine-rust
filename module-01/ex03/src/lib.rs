@@ -1,5 +1,5 @@
 pub fn largest_group<'a>(haystack: &'a [u32], needle: &[u32]) -> &'a [u32] {
-    let mut best_so_far: &[u32] = &[];
+    let mut largest: &[u32] = &[];
 
     for start in 0..haystack.len() {
         let mut end = start;
@@ -17,12 +17,11 @@ pub fn largest_group<'a>(haystack: &'a [u32], needle: &[u32]) -> &'a [u32] {
         if !validated {
             continue;
         }
-        if best_so_far.len() < candidate.len() {
-            best_so_far = candidate;
+        if largest.len() < candidate.len() {
+            largest = candidate;
         }
     }
-
-    best_so_far
+    largest
 }
 
 #[cfg(test)]
