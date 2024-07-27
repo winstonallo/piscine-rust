@@ -1,22 +1,22 @@
-struct Point {
+pub struct Point {
     x: f32,
     y: f32,
 }
 
 impl Point {
-    fn new(x: f32, y: f32) -> Self {
+    pub fn new(x: f32, y: f32) -> Self {
         Point { x, y }
     }
 
-    fn zero() -> Self {
+    pub fn zero() -> Self {
         Point { x: 0.0, y: 0.0 }
     }
 
-    fn distance(&self, other: &Self) -> f32 {
+    pub fn distance(&self, other: &Self) -> f32 {
         ((self.x - other.x) * (self.x - other.x) + (self.y - other.y) * (self.y - other.y)).sqrt()
     }
 
-    fn translate(&mut self, dx: f32, dy: f32) {
+    pub fn translate(&mut self, dx: f32, dy: f32) {
         self.x += dx;
         self.y += dy;
     }
