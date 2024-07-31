@@ -1,4 +1,7 @@
 fn collatz(start: u32) {
+    if start == 0 {
+        return;
+    }
     let mut n: u32 = start;
     while n != 1 {
         println!("{}",n);
@@ -18,4 +21,8 @@ mod test {
     fn testcollatz() {
         collatz(70);
     }
+}
+
+fn main() {
+    collatz(0);
 }
