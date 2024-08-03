@@ -9,6 +9,7 @@ fn get_next_id() -> u8 {
     ID.fetch_add(1, Ordering::SeqCst)
 }
 
+#[allow(dead_code)]
 impl Unique {
     pub fn new() -> Self {
         Self(get_next_id())
