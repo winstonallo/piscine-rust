@@ -1,6 +1,8 @@
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread::{self, JoinHandle};
-
+use std::env;
+use std::io::prelude::*;
+use std::net::{TcpListener, TcpStream};
 type Task = Box<dyn FnOnce() + Send + 'static>;
 
 pub struct ThreadPool {
@@ -69,10 +71,6 @@ impl Drop for ThreadPool {
         }
     }
 }
-
-use std::env;
-use std::io::prelude::*;
-use std::net::{TcpListener, TcpStream};
 
 fn handle_connection(mut stream: TcpStream) {
     let response = "HTTP/1.1 404 NOT FOUND\r\nContent-Length: 24\r\n\r\nThis page does not exist :(";
