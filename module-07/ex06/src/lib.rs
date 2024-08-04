@@ -1,4 +1,4 @@
-use std::ffi::{CStr, CString, c_char, c_int};
+use std::ffi::{c_char, c_int, CStr, CString};
 use std::ptr;
 
 #[repr(C)]
@@ -51,6 +51,8 @@ impl Database {
             count: 0,
             allocated: 0,
         };
+        // SAFETY:
+        // Access raw memory via linked C library.
         let result = unsafe { create_database(&mut db) };
         if result == Error::ErrSuccess {
             Ok(db)
@@ -61,6 +63,8 @@ impl Database {
 
     fn create_user(&mut self, name: &CStr) -> Result<Id, Error> {
         let mut user_id: Id = 0;
+        // SAFETY:
+        // Access raw memory via linked C library.
         let result = unsafe { create_user(self, name.as_ptr(), &mut user_id) };
         if result == Error::ErrSuccess {
             Ok(user_id)
@@ -70,6 +74,8 @@ impl Database {
     }
 
     fn delete_user(&mut self, id: Id) -> Result<(), Error> {
+        // SAFETY:
+        // Access raw memory via linked C library.
         let result = unsafe { delete_user(self, id) };
         if result == Error::ErrSuccess {
             Ok(())
@@ -80,6 +86,8 @@ impl Database {
 
     fn get_user(&self, id: Id) -> Result<&User, Error> {
         let mut user: *const User = ptr::null();
+        // SAFETY:
+        // Access raw memory via linked C library.
         let result = unsafe { get_user(self, id, &mut user) };
         if result == Error::ErrSuccess {
             unsafe { Ok(&*user) }
@@ -89,30 +97,34 @@ impl Database {
     }
 }
 
+impl Drop for Database {
+    fn drop(&mut self) {
+        // SAFETY:
+        // Access raw memory via linked C library.
+        unsafe { delete_database(self) };
+    }
+}
+
 #[allow(dead_code)]
 fn main() {
-    unsafe {
-        match Database::new() {
-            Ok(mut db) => {
-                let name = CString::new("John Doe").expect("CString::new failed");
-                match db.create_user(&name) {
-                    Ok(user_id) => println!("User created with ID: {}", user_id),
-                    Err(err) => eprintln!("Error creating user: {:?}", err),
-                }
-
-                match db.get_user(1) {
-                    Ok(user) => println!("Found user: {:?}", user),
-                    Err(err) => eprintln!("Error getting user: {:?}", err),
-                }
-
-                match db.delete_user(1) {
-                    Ok(_) => println!("User deleted"),
-                    Err(err) => eprintln!("Error deleting user: {:?}", err),
-                }
-
-                delete_database(&mut db);
+    match Database::new() {
+        Ok(mut db) => {
+            let name = CString::new("John Doe").expect("CString::new failed");
+            match db.create_user(&name) {
+                Ok(user_id) => println!("User created with ID: {}", user_id),
+                Err(err) => eprintln!("Error creating user: {:?}", err),
             }
-            Err(err) => eprintln!("Error creating database: {:?}", err),
+
+            match db.get_user(1) {
+                Ok(user) => println!("Found user: {:?}", user),
+                Err(err) => eprintln!("Error getting user: {:?}", err),
+            }
+
+            match db.delete_user(1) {
+                Ok(_) => println!("User deleted"),
+                Err(err) => eprintln!("Error deleting user: {:?}", err),
+            }
         }
+        Err(err) => eprintln!("Error creating database: {:?}", err),
     }
 }
